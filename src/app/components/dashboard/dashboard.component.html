@@ -1,0 +1,238 @@
+<div class="page">
+  <mat-toolbar color="primary" class="app-toolbar">
+    <span class="title">Dashboard</span>
+    <span class="spacer"></span>
+    <button mat-stroked-button color="accent" (click)="logout()">Logout</button>
+  </mat-toolbar>
+
+  <div class="page-content">
+    <mat-card class="panel">
+      <mat-tab-group>
+        <!-- Users Tab -->
+        <mat-tab label="Users">
+          <div class="tab-content">
+            <div class="section-header">
+              <h2>User Management</h2>
+              <div class="actions">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  (click)="openCreateUserDialog()"
+                >
+                  Create User
+                </button>
+              </div>
+            </div>
+
+            <div class="search-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Search users</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="searchTerm"
+                  (ngModelChange)="onSearchChange()"
+                />
+                <button
+                  *ngIf="searchTerm"
+                  mat-button
+                  matSuffix
+                  type="button"
+                  (click)="searchTerm = ''; onSearchChange()"
+                >
+                  Clear
+                </button>
+              </mat-form-field>
+            </div>
+
+            <div class="table-container">
+              @if (filteredUsers$ | async; as users) { @if (users.length === 0)
+              {
+              <div class="empty">
+                <h3>No users found</h3>
+                <p>Try adjusting your search.</p>
+              </div>
+              } @else {
+              <table
+                mat-table
+                [dataSource]="users"
+                class="mat-elevation-z2 dense"
+              >
+                <ng-container matColumnDef="username">
+                  <th mat-header-cell *matHeaderCellDef>Username</th>
+                  <td mat-cell *matCellDef="let user">{{ user.username }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="role">
+                  <th mat-header-cell *matHeaderCellDef>Role</th>
+                  <td mat-cell *matCellDef="let user">
+                    <span class="chip" [class.admin]="user.role === 'admin'">{{
+                      user.role
+                    }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="appView">
+                  <th mat-header-cell *matHeaderCellDef>AppView</th>
+                  <td mat-cell *matCellDef="let user">
+                    {{ getAppViewName(user) }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="defaultLang">
+                  <th mat-header-cell *matHeaderCellDef>Default Language</th>
+                  <td mat-cell *matCellDef="let user">
+                    {{ user.preferences?.defaultLang || "N/A" }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let user">
+                    <div class="action-buttons">
+                      <button
+                        mat-button
+                        color="warn"
+                        (click)="openDeleteUserDialog(user)"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr
+                  mat-header-row
+                  *matHeaderRowDef="displayedColumnsUsers"
+                ></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let row; columns: displayedColumnsUsers"
+                ></tr>
+              </table>
+              } } @else {
+              <div class="loading">
+                <mat-spinner diameter="50"></mat-spinner>
+              </div>
+              }
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- AppViews Tab -->
+        <mat-tab label="AppViews">
+          <div class="tab-content">
+            <div class="section-header">
+              <h2>AppView Management</h2>
+              <div class="actions">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  (click)="openCreateAppViewDialog()"
+                >
+                  Create AppView
+                </button>
+              </div>
+            </div>
+
+            <div class="search-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Search app views</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="appViewSearchTerm"
+                  (ngModelChange)="onAppViewSearchChange()"
+                />
+                <button
+                  *ngIf="appViewSearchTerm"
+                  mat-button
+                  matSuffix
+                  type="button"
+                  (click)="appViewSearchTerm = ''; onAppViewSearchChange()"
+                >
+                  Clear
+                </button>
+              </mat-form-field>
+            </div>
+
+            <div class="table-container">
+              @if (filteredAppViews$ | async; as appViews) { @if
+              (appViews.length === 0) {
+              <div class="empty">
+                <h3>No app views found</h3>
+                <p>Try updating your search.</p>
+              </div>
+              } @else {
+              <table
+                mat-table
+                [dataSource]="appViews"
+                class="mat-elevation-z2 dense"
+              >
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef>Name</th>
+                  <td mat-cell *matCellDef="let view">{{ view.name }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="applications">
+                  <th mat-header-cell *matHeaderCellDef>Applications</th>
+                  <td mat-cell *matCellDef="let view">
+                    <span class="tags">{{ getApplicationIds(view) }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="profile">
+                  <th mat-header-cell *matHeaderCellDef>Profile</th>
+                  <td mat-cell *matCellDef="let view">
+                    <span class="tags">{{ getProfileIds(view) }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let view">
+                    <div class="action-buttons">
+                      <button
+                        mat-button
+                        color="primary"
+                        (click)="openEditAppViewDialog(view)"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        mat-button
+                        color="accent"
+                        (click)="openAssignAppViewDialog(view)"
+                      >
+                        Assign
+                      </button>
+                      <button
+                        mat-button
+                        color="warn"
+                        (click)="openDeleteAppViewDialog(view)"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr
+                  mat-header-row
+                  *matHeaderRowDef="displayedColumnsAppViews"
+                ></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let row; columns: displayedColumnsAppViews"
+                ></tr>
+              </table>
+              } } @else {
+              <div class="loading">
+                <mat-spinner diameter="50"></mat-spinner>
+              </div>
+              }
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card>
+  </div>
+</div>

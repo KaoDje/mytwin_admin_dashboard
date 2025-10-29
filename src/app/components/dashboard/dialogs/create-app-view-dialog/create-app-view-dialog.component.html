@@ -1,0 +1,202 @@
+<h2 mat-dialog-title>Create New AppView</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="appViewForm" class="app-view-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" required />
+      <mat-error *ngIf="appViewForm.get('name')?.hasError('required')">
+        Name is required
+      </mat-error>
+      <mat-error *ngIf="appViewForm.get('name')?.hasError('minlength')">
+        Name must be at least 3 characters
+      </mat-error>
+    </mat-form-field>
+
+    <div class="section">
+      <h3>Applications</h3>
+
+      <mat-form-field appearance="outline" class="add-select-field">
+        <mat-label>Select or create application</mat-label>
+        <mat-select
+          #applicationSelect
+          (selectionChange)="handleApplicationSelection($event.value)"
+          (openedChange)="onApplicationDropdownOpened($event)"
+          panelClass="custom-select-panel"
+        >
+          <mat-option
+            class="custom-option"
+            [value]="null"
+            (click)="$event.stopPropagation()"
+          >
+            <div class="custom-option__content">
+              <input
+                #applicationCustomInput
+                type="text"
+                class="custom-option__input"
+                placeholder="Custom application id"
+                [(ngModel)]="newApplicationCustom"
+                [ngModelOptions]="{ standalone: true }"
+                (keydown.enter)="confirmCustomApplication()"
+              />
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="confirmCustomApplication(); $event.stopPropagation()"
+              >
+                Add
+              </button>
+            </div>
+          </mat-option>
+          <mat-option
+            *ngFor="let app of availableApplications"
+            [value]="app"
+            [disabled]="isApplicationSelected(app)"
+          >
+            {{ app }}
+          </mat-option>
+        </mat-select>
+        <mat-hint>Select an item or add your own identifier.</mat-hint>
+      </mat-form-field>
+
+      <div
+        class="selected-list"
+        *ngIf="selectedApplications.length > 0"
+        cdkDropList
+        (cdkDropListDropped)="dropApplication($event)"
+      >
+        <div
+          class="list-item"
+          *ngFor="let app of selectedApplications; let i = index"
+          cdkDrag
+        >
+          <div class="item-content">
+            <div class="item-label">
+              <span class="item-order">#{{ app.order }}</span>
+              <span class="item-id">{{ app.id }}</span>
+            </div>
+            <div class="item-actions">
+              <button
+                mat-icon-button
+                type="button"
+                cdkDragHandle
+                class="drag-handle"
+                aria-label="Reorder"
+              >
+                <mat-icon>drag_indicator</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                type="button"
+                (click)="removeApplication(i)"
+                aria-label="Delete"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Profile Items</h3>
+
+      <mat-form-field appearance="outline" class="add-select-field">
+        <mat-label>Select or create profile</mat-label>
+        <mat-select
+          #profileSelect
+          (selectionChange)="handleProfileSelection($event.value)"
+          (openedChange)="onProfileDropdownOpened($event)"
+          panelClass="custom-select-panel"
+        >
+          <mat-option
+            class="custom-option"
+            [value]="null"
+            (click)="$event.stopPropagation()"
+          >
+            <div class="custom-option__content">
+              <input
+                #profileCustomInput
+                type="text"
+                class="custom-option__input"
+                placeholder="Custom profile id"
+                [(ngModel)]="newProfileCustom"
+                [ngModelOptions]="{ standalone: true }"
+                (keydown.enter)="confirmCustomProfile()"
+              />
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="confirmCustomProfile(); $event.stopPropagation()"
+              >
+                Add
+              </button>
+            </div>
+          </mat-option>
+          <mat-option
+            *ngFor="let profile of availableProfiles"
+            [value]="profile"
+            [disabled]="isProfileSelected(profile)"
+          >
+            {{ profile }}
+          </mat-option>
+        </mat-select>
+        <mat-hint>Select an item or add your own identifier.</mat-hint>
+      </mat-form-field>
+
+      <div
+        class="selected-list"
+        *ngIf="selectedProfiles.length > 0"
+        cdkDropList
+        (cdkDropListDropped)="dropProfile($event)"
+      >
+        <div
+          class="list-item"
+          *ngFor="let profile of selectedProfiles; let i = index"
+          cdkDrag
+        >
+          <div class="item-content">
+            <div class="item-label">
+              <span class="item-order">#{{ profile.order }}</span>
+              <span class="item-id">{{ profile.id }}</span>
+            </div>
+            <div class="item-actions">
+              <button
+                mat-icon-button
+                type="button"
+                cdkDragHandle
+                class="drag-handle"
+                aria-label="Reorder"
+              >
+                <mat-icon>drag_indicator</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                type="button"
+                (click)="removeProfile(i)"
+                aria-label="Delete"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="!appViewForm.valid || !isSelectionValid()"
+  >
+    Create
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,184 @@
+<h2 mat-dialog-title>Edit AppView</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="appViewForm" class="app-view-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" required />
+      <mat-error *ngIf="appViewForm.get('name')?.hasError('required')">
+        Name is required
+      </mat-error>
+      <mat-error *ngIf="appViewForm.get('name')?.hasError('minlength')">
+        Name must be at least 3 characters
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Applications Section -->
+    <div class="section">
+      <h3>Applications</h3>
+
+      <div class="add-section">
+        <mat-form-field appearance="outline">
+          <mat-label>Select or create application</mat-label>
+          <mat-select
+            [(ngModel)]="newApplicationSelect"
+            [ngModelOptions]="{ standalone: true }"
+          >
+            <mat-option value="">Create custom...</mat-option>
+            <mat-option *ngFor="let app of availableApplications" [value]="app">
+              {{ app }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field
+          *ngIf="newApplicationSelect === ''"
+          appearance="outline"
+        >
+          <mat-label>Custom application name</mat-label>
+          <input
+            matInput
+            [(ngModel)]="newApplicationCustom"
+            [ngModelOptions]="{ standalone: true }"
+          />
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="addApplication()"
+          type="button"
+        >
+          Add Application
+        </button>
+      </div>
+
+      <div class="selected-list" *ngIf="selectedApplications.length > 0">
+        <div
+          class="list-item"
+          *ngFor="let app of selectedApplications; let i = index"
+        >
+          <div class="item-content">
+            <span class="item-label">{{ app.id }}</span>
+            <div class="item-actions">
+              <button
+                mat-icon-button
+                type="button"
+                (click)="moveApplicationUp(i)"
+                [disabled]="i === 0"
+              >
+                <mat-icon>keyboard_arrow_up</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                type="button"
+                (click)="moveApplicationDown(i)"
+                [disabled]="i === selectedApplications.length - 1"
+              >
+                <mat-icon>keyboard_arrow_down</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                type="button"
+                (click)="removeApplication(i)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profiles Section -->
+    <div class="section">
+      <h3>Profile Items</h3>
+
+      <div class="add-section">
+        <mat-form-field appearance="outline">
+          <mat-label>Select or create profile</mat-label>
+          <mat-select
+            [(ngModel)]="newProfileSelect"
+            [ngModelOptions]="{ standalone: true }"
+          >
+            <mat-option value="">Create custom...</mat-option>
+            <mat-option
+              *ngFor="let profile of availableProfiles"
+              [value]="profile"
+            >
+              {{ profile }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field *ngIf="newProfileSelect === ''" appearance="outline">
+          <mat-label>Custom profile name</mat-label>
+          <input
+            matInput
+            [(ngModel)]="newProfileCustom"
+            [ngModelOptions]="{ standalone: true }"
+          />
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="addProfile()"
+          type="button"
+        >
+          Add Profile
+        </button>
+      </div>
+
+      <div class="selected-list" *ngIf="selectedProfiles.length > 0">
+        <div
+          class="list-item"
+          *ngFor="let profile of selectedProfiles; let i = index"
+        >
+          <div class="item-content">
+            <span class="item-label">{{ profile.id }}</span>
+            <div class="item-actions">
+              <button
+                mat-icon-button
+                type="button"
+                (click)="moveProfileUp(i)"
+                [disabled]="i === 0"
+              >
+                <mat-icon>keyboard_arrow_up</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                type="button"
+                (click)="moveProfileDown(i)"
+                [disabled]="i === selectedProfiles.length - 1"
+              >
+                <mat-icon>keyboard_arrow_down</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                type="button"
+                (click)="removeProfile(i)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="!appViewForm.valid || !isSelectionValid()"
+  >
+    Save
+  </button>
+</mat-dialog-actions>

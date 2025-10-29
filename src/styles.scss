@@ -1,1 +1,48 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Material Design imports */
+@import "@angular/material/prebuilt-themes/azure-blue.css";
+
+/* Design tokens */
+:root {
+  --bg: #f6f8fb;
+  --surface: #ffffff;
+  --surface-2: #f2f5fa;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --radius: 12px;
+  --shadow: 0 6px 24px rgba(16, 24, 40, 0.08);
+}
+
+/* Global styles */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* { box-sizing: border-box; }
+
+/* App layout helpers */
+.app-toolbar.mdc-top-app-bar, .app-toolbar.mat-toolbar { box-shadow: var(--shadow); }
+.page-content { padding: 24px; }
+
+/* Material density tweaks */
+.mat-mdc-form-field { --mdc-outlined-text-field-container-shape: var(--radius); }
+.mdc-button { border-radius: 8px !important; }
+
+/* Table polish */
+.mat-mdc-table { background: var(--surface); border-radius: var(--radius); overflow: hidden; }
+.mat-mdc-header-row { position: sticky; top: 0; background: var(--surface-2); z-index: 2; }
+.mat-mdc-row:hover { background: rgba(17, 24, 39, 0.03); }
+
+/* Simple chip */
+.chip { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; background: #e8f0fe; color: #1a73e8; }
+.chip.admin { background: #f3e8ff; color: #9333ea; }
+
+/* Dialog width defaults */
+.mat-mdc-dialog-container .mdc-dialog__surface { border-radius: var(--radius); }

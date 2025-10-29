@@ -1,0 +1,52 @@
+<h2 mat-dialog-title>Assign AppView to Users</h2>
+<p class="app-view-name">{{ data.appViewName }}</p>
+
+<mat-dialog-content>
+  <section class="metadata">
+    <div>
+      <h3>Applications</h3>
+      <ul *ngIf="data.applications?.length; else noApps">
+        <li *ngFor="let app of data.applications">{{ app }}</li>
+      </ul>
+      <ng-template #noApps><p class="empty">No applications configured</p></ng-template>
+    </div>
+    <div>
+      <h3>Profile Items</h3>
+      <ul *ngIf="data.profile?.length; else noProfiles">
+        <li *ngFor="let item of data.profile">{{ item }}</li>
+      </ul>
+      <ng-template #noProfiles><p class="empty">No profile items configured</p></ng-template>
+    </div>
+  </section>
+
+  <div class="users-list">
+    @if (users$ | async; as users) {
+      @if (users.length === 0) {
+        <p class="no-users">No users available</p>
+      } @else {
+        @for (user of users; track user.uuid) {
+          <div class="user-item">
+            <mat-checkbox
+              [checked]="selectedUsers.includes(user.uuid)"
+              (change)="toggleUser(user.uuid)"
+            >
+              {{ user.username }} ({{ user.role }})
+            </mat-checkbox>
+          </div>
+        }
+      }
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="selectedUsers.length === 0"
+  >
+    Assign to {{ selectedUsers.length }} user(s)
+  </button>
+</mat-dialog-actions>

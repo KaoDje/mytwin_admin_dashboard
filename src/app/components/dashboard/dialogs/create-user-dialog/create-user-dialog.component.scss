@@ -1,0 +1,22 @@
+.user-form {
+  display: flex;
+  flex-direction: column;
+  min-width: 420px;
+  gap: 16px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+h3 {
+  margin: 8px 0;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 16px;
+}
+
+mat-dialog-content {
+  max-height: 70vh;
+  overflow-y: auto;
+}

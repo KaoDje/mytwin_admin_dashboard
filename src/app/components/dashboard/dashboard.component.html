@@ -1,6 +1,9 @@
 <div class="page">
   <mat-toolbar color="primary" class="app-toolbar">
     <span class="title">Dashboard</span>
+    <span class="environment-badge" [class.dev]="currentEnvironment === 'dev'" [class.prod]="currentEnvironment === 'prod'">
+      {{ currentEnvironment === 'dev' ? 'DEV' : 'PROD' }}
+    </span>
     <span class="spacer"></span>
     <button mat-stroked-button color="accent" (click)="logout()">Logout</button>
   </mat-toolbar>

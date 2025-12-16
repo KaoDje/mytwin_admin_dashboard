@@ -2,6 +2,23 @@
   <div class="login-box">
     <h1>Dashboard Login</h1>
 
+    <div class="environment-selector">
+      <label>Environment</label>
+      <div class="environment-buttons">
+        <button
+          *ngFor="let env of environments"
+          type="button"
+          [class.active]="selectedEnvironment === env.value"
+          [class.dev]="env.value === 'dev'"
+          [class.prod]="env.value === 'prod'"
+          (click)="onEnvironmentChange(env.value)"
+        >
+          <span class="env-label">{{ env.label }}</span>
+          <span class="env-description">{{ env.description }}</span>
+        </button>
+      </div>
+    </div>
+
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="username">Username</label>
@@ -37,7 +54,7 @@
         </div>
       </div>
 
-      <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+      <div *ngIf="errorMessage" class="error-message global-error">{{ errorMessage }}</div>
 
       <button
         type="submit"

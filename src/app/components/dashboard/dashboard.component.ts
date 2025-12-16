@@ -17,6 +17,8 @@ import { AppView } from '../../entities/app-view.entity';
 import { User } from '../../entities/user.entity';
 import { AuthenticatedUserRepository } from '../../repositories/authenticated-user.repository';
 import { AppViewService } from '../../services/app-view.service';
+import { AuthenticationProdService } from '../../services/authentication-prod.service';
+import { EnvironmentService, Environment } from '../../services/environment.service';
 import { IdentityService } from '../../services/identity.service';
 import { UserService } from '../../services/user.service';
 import { AssignAppViewDialogComponent } from './dialogs/assign-app-view-dialog/assign-app-view-dialog.component';
@@ -51,6 +53,7 @@ export class DashboardComponent implements OnInit {
   filteredAppViews$!: Observable<AppView[]>;
   searchTerm = '';
   appViewSearchTerm = '';
+  currentEnvironment: Environment = 'dev';
 
   displayedColumnsUsers: string[] = [
     'username',
@@ -68,6 +71,8 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private authUserRepo: AuthenticatedUserRepository,
+    private authProdService: AuthenticationProdService,
+    private envService: EnvironmentService,
     private userService: UserService,
     private appViewService: AppViewService,
     private identityService: IdentityService,
@@ -77,6 +82,7 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.currentEnvironment = this.envService.getEnvironment();
     this.loadData();
   }
 
@@ -304,8 +310,22 @@ export class DashboardComponent implements OnInit {
   }
 
   logout(): void {
-    this.authUserRepo.clearToken();
-    this.router.navigate(['/login']);
+    if (this.currentEnvironment === 'prod') {
+      // For prod, call the logout mutation to revoke the refresh token
+      this.authProdService.logout().subscribe({
+        next: () => {
+          this.router.navigate(['/login']);
+        },
+        error: () => {
+          // Even if logout fails, still redirect to login
+          this.router.navigate(['/login']);
+        },
+      });
+    } else {
+      // For dev, just clear tokens locally
+      this.authUserRepo.clearToken();
+      this.router.navigate(['/login']);
+    }
   }
 
   getAppViewName(user: User): string {

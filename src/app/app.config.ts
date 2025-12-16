@@ -12,6 +12,20 @@ import { AuthenticatedUserRepository } from './repositories/authenticated-user.r
 import { MAT_RIPPLE_GLOBAL_OPTIONS } from '@angular/material/core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
+// Environment URLs configuration
+const ENVIRONMENT_URLS = {
+  dev: 'https://api.my-twin.io/graphql',
+  prod: 'https://mytwin-backend.osc-fr1.scalingo.io/graphql',
+};
+
+function getGraphqlUrl(): string {
+  const storedEnv = localStorage.getItem('selected_environment');
+  if (storedEnv === 'prod') {
+    return ENVIRONMENT_URLS.prod;
+  }
+  return ENVIRONMENT_URLS.dev;
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
@@ -36,7 +50,8 @@ export const appConfig: ApplicationConfig = {
 
       // Middleware pour ajouter le token JWT
       const authMiddleware = new ApolloLink((operation, forward) => {
-        const token = authUserRepo.getToken();
+        // Use getCurrentToken which handles both dev (jwt) and prod (accessToken)
+        const token = authUserRepo.getCurrentToken();
 
         if (token) {
           operation.setContext(({ headers = {} }) => ({
@@ -54,7 +69,7 @@ export const appConfig: ApplicationConfig = {
         link: ApolloLink.from([
           authMiddleware,
           httpLink.create({
-            uri: 'https://api.my-twin.io/graphql',
+            uri: getGraphqlUrl(),
           }),
         ]),
         cache: new InMemoryCache(),

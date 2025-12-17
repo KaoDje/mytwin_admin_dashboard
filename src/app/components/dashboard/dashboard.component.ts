@@ -139,45 +139,82 @@ export class DashboardComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         // Separate user data from identity data
-        const userData = {
+        const userData: any = {
           username: result.username,
           password: result.password,
           role: result.role,
           defaultLang: result.defaultLang,
-          appViewId: result.appViewId,
         };
+        if (result.appViewId) userData.appViewId = result.appViewId;
 
-        const identityData = {
+        // Build identity data, only including non-empty fields
+        const identityData: any = {
           firstName: result.firstName,
           lastName: result.lastName,
-          birthDate: result.birthDate,
-          birthCity: result.birthCity,
-          city: result.city,
-          country: result.country,
-          biologicalSex: result.biologicalSex,
         };
+        if (result.birthDate) identityData.birthDate = result.birthDate;
+        if (result.birthCity) identityData.birthCity = result.birthCity;
+        if (result.city) identityData.city = result.city;
+        if (result.country) identityData.country = result.country;
+        if (result.biologicalSex) identityData.biologicalSex = result.biologicalSex;
+
+        console.log('[Dashboard] Creating user with data:', userData);
+        console.log('[Dashboard] Identity data:', identityData);
 
         // Chain the two API calls: create user first, then create identity
         this.userService
           .createUser(userData)
           .pipe(
             switchMap((userResponse) => {
+              console.log('[Dashboard] User created:', userResponse);
               const userId = userResponse.data?.createUser?.uuid;
               if (!userId) {
                 throw new Error('Failed to get user ID from response');
               }
 
               // Create identity with the userId
+              console.log('[Dashboard] Creating identity for user:', userId);
               return this.identityService.createIdentity(identityData, userId);
             })
           )
           .subscribe({
-            next: () => {
+            next: (result) => {
+              console.log('[Dashboard] Identity created:', result);
               this.showSuccess('User and identity created successfully');
               this.loadData();
             },
             error: (error) => {
-              console.error('Error creating user/identity:', error);
+              console.error('[Dashboard] Error creating user/identity:', error);
+              console.error('[Dashboard] Error name:', error.name);
+              console.error('[Dashboard] Error message:', error.message);
+
+              // Log the actual GraphQL errors if available
+              if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+                console.error('[Dashboard] GraphQL Errors count:', error.graphQLErrors.length);
+                error.graphQLErrors.forEach((gqlError: any, index: number) => {
+                  console.error(`[GraphQL Error ${index + 1}] Message:`, gqlError.message);
+                  console.error(`[GraphQL Error ${index + 1}] Extensions:`, JSON.stringify(gqlError.extensions, null, 2));
+                  console.error(`[GraphQL Error ${index + 1}] Path:`, gqlError.path);
+                  console.error(`[GraphQL Error ${index + 1}] Full error:`, JSON.stringify(gqlError, null, 2));
+                });
+              }
+
+              // Log network errors if available
+              if (error.networkError) {
+                console.error('[Dashboard] Network Error:', error.networkError);
+                console.error('[Dashboard] Network Error status:', error.networkError.status);
+                console.error('[Dashboard] Network Error statusText:', error.networkError.statusText);
+                if (error.networkError.result) {
+                  console.error('[Dashboard] Network Error result:', JSON.stringify(error.networkError.result, null, 2));
+                }
+                if (error.networkError.error) {
+                  console.error('[Dashboard] Network Error body:', JSON.stringify(error.networkError.error, null, 2));
+                }
+              }
+
+              // Log the full error object
+              console.error('[Dashboard] Full error object:', JSON.stringify(error, null, 2));
+
               this.showError('Failed to create user or identity');
             },
           });

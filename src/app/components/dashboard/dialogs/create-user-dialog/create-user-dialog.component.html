@@ -33,10 +33,11 @@
           hidePassword ? "visibility_off" : "visibility"
         }}</mat-icon>
       </button>
-      @if (userForm.get('password')?.hasError('required')) {
-      <mat-error>Password is required</mat-error>
-      } @if (userForm.get('password')?.hasError('minlength')) {
-      <mat-error>Password must be at least 6 characters</mat-error>
+      @if (userForm.get('password')?.invalid && userForm.get('password')?.touched) {
+      <mat-error>{{ getPasswordErrorMessage() }}</mat-error>
+      }
+      @if (isProd) {
+      <mat-hint>Min 12 chars, uppercase, lowercase, number, special char</mat-hint>
       }
     </mat-form-field>
 
